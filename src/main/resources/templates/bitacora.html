@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{general/fragmentos :: head}"></head>
+
+    <style>
+        body {
+            background: #f8f9ff;
+            color: #0b1c30;
+        }
+        .menu-lateral {
+            width: 256px;
+            min-height: 100vh;
+            background: #fff;
+            border-right: 1px solid #e2e8f0;
+        }
+        .logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #004ac6;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .opcion {
+            color: #434655;
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+        }
+        .opcion:hover {
+            background: #e5eeff;
+        }
+        .opcion-activa {
+            background: #e5eeff;
+            color: #004ac6;
+            font-weight: 600;
+        }
+        .tarjeta {
+            background: #fff;
+            border-radius: 8px;
+        }
+        .tarjeta-cabecera {
+            background: #eff4ff;
+            padding: 12px 16px;
+        }
+        .tabla-bitacora th {
+            background: #e5eeff;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #434655;
+        }
+        .fila-activa {
+            background: #dce9ff;
+        }
+        .caja-gris {
+            background: #eff4ff;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .etiqueta {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #434655;
+            font-weight: 600;
+        }
+        .chip {
+            background: #e5eeff;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+    </style>
+
+    <body>
+        <div class="d-flex">
+
+            <aside class="menu-lateral d-flex flex-column justify-content-between d-print-none">
+                <div>
+                    <div class="d-flex align-items-center gap-2 p-3 border-bottom">
+                        <span class="logo"><i class="fa-solid fa-pen-to-square"></i></span>
+                        <div>
+                            <div class="fw-bold lh-1">SmartNotes</div>
+                            <small class="text-secondary">Notas de Planta</small>
+                        </div>
+                    </div>
+
+                    <p class="etiqueta px-3 pt-3 mb-2">Operación</p>
+                    <nav class="px-2 d-flex flex-column gap-1">
+                        <a class="opcion" th:href="@{/persona3/generador}">
+                            <i class="fa-solid fa-file-pen me-2"></i>Generador de Notas
+                        </a>
+                        <a class="opcion" th:href="@{/plantillas}">
+                            <i class="fa-solid fa-table-cells-large me-2"></i>Catálogo de Plantillas
+                        </a>
+                        <a class="opcion opcion-activa" th:href="@{/bitacora}">
+                            <i class="fa-solid fa-clock-rotate-left me-2"></i>Bitácora de Notas
+                        </a>
+                    </nav>
+                </div>
+
+                <form th:action="@{/logout}" method="post" class="p-2 border-top">
+                    <button type="submit" class="opcion text-danger border-0 bg-transparent w-100 text-start">
+                        <i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar Sesión
+                    </button>
+                </form>
+            </aside>
+
+            <div class="flex-grow-1">
+
+                <div class="bg-white border-bottom d-flex justify-content-end
+                     align-items-center gap-3 px-4 d-print-none" style="height: 64px;">
+                    <div class="text-end" th:if="${usuario != null}">
+                        <div class="fw-semibold lh-sm"
+                             th:text="|${usuario.nombre} ${usuario.apellidoPaterno}|">Usuario</div>
+                        <small class="text-secondary" th:text="${usuario.puesto}">Puesto</small>
+                    </div>
+                    <span class="logo rounded-circle"><i class="fa-solid fa-user"></i></span>
+                </div>
+
+                <main class="p-4">
+
+                    <h1 class="fw-bold h2 mb-1">Bitácora de Notas</h1>
+                    <p class="text-secondary mb-4">
+                        Consulta y auditoría de notas de corrección registradas.
+                    </p>
+
+                    <form method="get" th:action="@{/bitacora}"
+                          class="tarjeta shadow-sm p-3 mb-4 d-print-none">
+                        <div class="row g-3">
+                            <div class="col-md">
+                                <input type="search" name="nombre" class="form-control"
+                                       placeholder="Buscar por nombre de Team Member..."
+                                       th:value="${nombre}">
+                            </div>
+
+                            <div class="col-md-3">
+                                <select name="idCategoria" class="form-select"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todas las categorías</option>
+                                    <option th:each="categoria : ${categorias}"
+                                            th:value="${categoria.idCategoria}"
+                                            th:text="${categoria.nombre}"
+                                            th:selected="${idCategoria != null
+                                            and idCategoria == categoria.idCategoria}">
+                                        Categoría
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <input type="date" name="fecha" class="form-control"
+                                       th:value="${fecha}" onchange="this.form.submit()">
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="row g-4 align-items-start">
+
+                        <section class="col-xl-8">
+                            <div class="tarjeta shadow-sm overflow-hidden">
+
+                                <div class="tarjeta-cabecera d-flex justify-content-between
+                                     align-items-center">
+                                    <span class="fw-semibold">Notas Registradas</span>
+                                    <span class="chip text-uppercase"
+                                          th:text="|${#lists.size(notas)} registros|">3 registros</span>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table tabla-bitacora align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha de registro</th>
+                                                <th>Team Member</th>
+                                                <th>Fecha del error</th>
+                                                <th>Plantilla</th>
+                                                <th>Categoría</th>
+                                                <th>Registrado por</th>
+                                                <th class="text-end">Acciones</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr th:each="nota : ${notas}"
+                                                th:classappend="${seleccionada != null
+                                                and seleccionada.idNota == nota.idNota}
+                                                ? 'fila-activa' : ''">
+
+                                                <td th:text="${nota.fechaCreacion != null
+                                                    ? #temporals.format(nota.fechaCreacion, 'dd/MM/yyyy')
+                                                    : (nota.fechaEmision != null
+                                                    ? #temporals.format(nota.fechaEmision, 'dd/MM/yyyy')
+                                                    : '-')}">12/09/2024</td>
+
+                                                <td class="fw-medium"
+                                                    th:text="${nota.teamMember.nombre}">Team Member</td>
+
+                                                <td th:text="${nota.fechaError != null
+                                                    ? #temporals.format(nota.fechaError, 'dd/MM/yyyy')
+                                                    : '-'}">10/09/2024</td>
+
+                                                <td th:text="${nota.plantilla != null
+                                                    ? nota.plantilla.nombre : '-'}">Plantilla</td>
+
+                                                <td>
+                                                    <span class="chip"
+                                                          th:text="${nota.categoria != null
+                                                          ? nota.categoria.nombre : 'N/A'}">Categoría</span>
+                                                </td>
+
+                                                <td th:text="|${nota.usuario.nombre} ${nota.usuario.apellidoPaterno}|">
+                                                    Usuario
+                                                </td>
+
+                                                <td class="text-end">
+                                                    <a class="btn btn-sm"
+                                                       th:classappend="${seleccionada != null
+                                                       and seleccionada.idNota == nota.idNota}
+                                                       ? 'btn-primary' : 'btn-light'"
+                                                       th:href="@{/bitacora(id=${nota.idNota},
+                                                       nombre=${nombre}, idCategoria=${idCategoria},
+                                                       fecha=${fecha})}">
+                                                        Ver nota
+                                                    </a>
+                                                </td>
+                                            </tr>
+
+                                            <tr th:if="${#lists.isEmpty(notas)}">
+                                                <td colspan="7" class="text-center text-secondary py-4">
+                                                    No se encontraron notas con esos filtros.
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="tarjeta-cabecera d-flex justify-content-between
+                                     small text-secondary">
+                                    <span th:text="|Filtrado: ${#lists.size(notas)} registros|">
+                                        Filtrado: 3 registros
+                                    </span>
+                                    <span>Página 1 de 1</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="col-xl-4">
+                            <div class="tarjeta shadow-sm overflow-hidden position-sticky"
+                                 style="top: 16px;">
+
+                                <div class="tarjeta-cabecera d-flex justify-content-between
+                                     align-items-center">
+                                    <span class="etiqueta">
+                                        <i class="fa-solid fa-eye text-primary me-1"></i>
+                                        Detalle de la nota
+                                    </span>
+                                    <span class="chip">
+                                        <i class="fa-solid fa-lock me-1"></i>Solo lectura
+                                    </span>
+                                </div>
+
+                                <div class="p-3" th:if="${seleccionada == null}">
+                                    <p class="text-secondary mb-0">
+                                        Selecciona Ver nota en la tabla para consultar
+                                        su contenido completo.
+                                    </p>
+                                </div>
+
+                                <div class="p-3 d-flex flex-column gap-3"
+                                     th:if="${seleccionada != null}">
+
+                                    <div>
+                                        <h2 class="h5 fw-semibold mb-2"
+                                            th:text="${seleccionada.plantilla != null
+                                            ? seleccionada.plantilla.nombre : 'Nota de corrección'}">
+                                            Plantilla
+                                        </h2>
+                                        <span class="chip me-1">
+                                            <i class="fa-solid fa-user me-1"></i>
+                                            <span th:text="${seleccionada.teamMember.nombre}">Team Member</span>
+                                        </span>
+                                        <span class="chip">
+                                            <i class="fa-solid fa-folder me-1"></i>
+                                            <span th:text="${seleccionada.categoria != null
+                                                  ? seleccionada.categoria.nombre : 'N/A'}">Categoría</span>
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <div class="etiqueta mb-1">Texto ensamblado de la nota</div>
+                                        <div class="caja-gris text-break"
+                                             style="white-space: pre-wrap;"
+                                             th:text="${seleccionada.contenidoGenerado != null
+                                             ? seleccionada.contenidoGenerado : '-'}">Texto</div>
+                                    </div>
+
+                                    <div>
+                                        <div class="etiqueta mb-1">Evidencia objetiva</div>
+                                        <div class="caja-gris d-flex gap-2">
+                                            <i class="fa-solid fa-circle-check text-primary mt-1"></i>
+                                            <span class="text-break"
+                                                  th:text="${seleccionada.evidenciaObjetiva != null
+                                                  ? seleccionada.evidenciaObjetiva
+                                                  : 'Sin evidencia registrada'}">Evidencia</span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="etiqueta mb-1">Datos de registro</div>
+                                        <div class="caja-gris small">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-secondary">Registrado por:</span>
+                                                <span class="fw-medium text-end"
+                                                      th:text="|${seleccionada.usuario.nombre} ${seleccionada.usuario.apellidoPaterno} (${seleccionada.usuario.puesto})|">
+                                                    Usuario
+                                                </span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-secondary">Fecha de registro:</span>
+                                                <span th:text="${seleccionada.fechaCreacion != null
+                                                      ? #temporals.format(seleccionada.fechaCreacion, 'dd/MM/yyyy')
+                                                      : (seleccionada.fechaEmision != null
+                                                      ? #temporals.format(seleccionada.fechaEmision, 'dd/MM/yyyy')
+                                                      : '-')}">12/09/2024</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <span class="text-secondary">Fecha del error:</span>
+                                                <span th:text="${seleccionada.fechaError != null
+                                                      ? #temporals.format(seleccionada.fechaError, 'dd/MM/yyyy')
+                                                      : '-'}">10/09/2024</span>
+                                            </div>
+
+                                            <button type="button"
+                                                    class="btn btn-primary btn-sm w-100 d-print-none"
+                                                    onclick="window.print()">
+                                                <i class="fa-solid fa-download me-1"></i>Exportar PDF
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+                </main>
+            </div>
+        </div>
+    </body>
+</html>
