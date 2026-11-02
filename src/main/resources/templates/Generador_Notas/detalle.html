@@ -1,40 +1,141 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8"/>
-    <title>Detalle de nota</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f6fb; margin: 0; padding: 0; }
-        .container { max-width: 900px; margin: 32px auto; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,.08); }
-        .meta { display: grid; grid-template-columns: repeat(2, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
-        .card { border: 1px solid #e7edf7; border-radius: 10px; padding: 14px; background: #f9fbff; }
-        .nav { display: flex; gap: 12px; margin-bottom: 20px; }
-        .nav a { text-decoration: none; color: #1f6feb; font-weight: 600; }
-        .content { white-space: pre-line; line-height: 1.6; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="nav">
-        <a th:href="@{/Generador_Notas/generador}">Generador</a>
-        <a th:href="@{/Generador_Notas/notas}">Notas guardadas</a>
-    </div>
 
-    <h2>Detalle de nota</h2>
+    <head th:replace="~{general/fragmentos :: head}"></head>
 
-    <div class="meta">
-        <div class="card"><strong>ID:</strong> <span th:text="${nota.id}"></span></div>
-        <div class="card"><strong>Estado:</strong> <span th:text="${nota.estado}"></span></div>
-        <div class="card"><strong>Plantilla:</strong> <span th:text="${nota.plantilla.nombre}"></span></div>
-        <div class="card"><strong>Responsable:</strong> <span th:text="${nota.teamMember.nombre}"></span></div>
-        <div class="card"><strong>Fecha inicio:</strong> <span th:text="${#temporals.format(nota.fechaInicio, 'dd/MM/yyyy')}"></span></div>
-        <div class="card"><strong>Fecha fin:</strong> <span th:text="${#temporals.format(nota.fechaFin, 'dd/MM/yyyy')}"></span></div>
-    </div>
+    <body>
 
-    <div class="card">
-        <h3>Contenido generado</h3>
-        <div class="content" th:text="${nota.contenidoGenerado}"></div>
-    </div>
-</div>
-</body>
+        <aside th:replace="~{general/fragmentos :: header}"></aside>
+
+        <main class="container-fluid p-4 p-lg-5">
+
+            <div th:replace="~{general/fragmentos :: usuarioActual}"></div>
+
+            <div class="d-flex flex-wrap justify-content-between
+                 align-items-center gap-3 mb-4">
+
+                <h1 class="fw-bold mb-0">Detalle de la nota</h1>
+
+                <a th:href="@{/Generador_Notas/notas}"
+                   class="btn btn-outline-primary">
+                    Volver a notas guardadas
+                </a>
+            </div>
+
+            <section class="sn-panel mb-4">
+                <h2 class="h5 mb-4">Información de la nota</h2>
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+                        <div class="text-secondary small">ID</div>
+                        <div class="fw-semibold"
+                             th:text="${nota.idNota}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="text-secondary small">Estado</div>
+                        <span class="badge bg-primary"
+                              th:text="${nota.estado}">
+                        </span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="text-secondary small">Plantilla</div>
+                        <div th:text="${nota.plantilla != null
+                             ? nota.plantilla.nombre
+                             : 'Sin plantilla'}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="text-secondary small">Miembro del equipo</div>
+                        <div th:text="${nota.teamMember != null
+                             ? nota.teamMember.nombre
+                             : 'Sin miembro asignado'}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="text-secondary small">Categoría</div>
+                        <div th:text="${nota.categoria != null
+                             ? nota.categoria.nombre
+                             : 'Sin categoría'}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="text-secondary small">Registrado por</div>
+                        <div th:text="${nota.usuario != null
+                             ? nota.usuario.nombre
+                             + ' '
+                             + nota.usuario.apellidoPaterno
+                             : 'Sin usuario asignado'}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="text-secondary small">Fecha del error</div>
+                        <div th:text="${nota.fechaError != null
+                             ? #temporals.format(
+                             nota.fechaError, 'dd/MM/yyyy')
+                             : 'Sin fecha'}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="text-secondary small">Fecha de emisión</div>
+                        <div th:text="${nota.fechaEmision != null
+                             ? #temporals.format(
+                             nota.fechaEmision, 'dd/MM/yyyy')
+                             : 'Sin fecha'}">
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="sn-panel mb-4">
+                <h2 class="h5 mb-3">Contenido generado</h2>
+
+                <div class="sn-texto-plantilla"
+                     style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                     th:text="${nota.contenidoGenerado}">
+                </div>
+            </section>
+
+            <section class="sn-panel">
+
+                <div class="mb-4">
+                    <h2 class="h5">Descripción</h2>
+                    <p class="mb-0"
+                       style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                       th:text="${nota.descripcionError}">
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <h2 class="h5">Corrección realizada</h2>
+                    <p class="mb-0"
+                       style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                       th:text="${nota.correccionRealizada}">
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="h5">Evidencias</h2>
+                    <p class="mb-0"
+                       style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                       th:text="${nota.evidenciaObjetiva != null
+                       ? nota.evidenciaObjetiva
+                       : 'Sin evidencias registradas'}">
+                    </p>
+                </div>
+
+            </section>
+
+        </main>
+
+    </body>
 </html>

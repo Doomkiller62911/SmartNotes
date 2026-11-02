@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.smartnotes.domain.Usuario;
 
 @Service
 public class NotaCorreccionService {
@@ -77,12 +78,15 @@ public class NotaCorreccionService {
     }
 
     @Transactional
-    public NotaCorreccion guardar(NotaGeneradorForm form) {
-        validarFormulario(form);
+    public NotaCorreccion guardar(
+            NotaGeneradorForm form,
+            Usuario usuario) {
 
         Plantilla plantilla = plantillaService.findById(form.getPlantillaId());
         TeamMember teamMember = teamMemberService.findById(form.getTeamMemberId());
         NotaCorreccion nota = new NotaCorreccion();
+        nota.setUsuario(usuario);
+        nota.setCategoria(plantilla.getCategoria());
 
         nota.setPlantilla(plantilla);
         nota.setTeamMember(teamMember);
@@ -146,6 +150,11 @@ public class NotaCorreccionService {
         valores.put("descripcion", nullToEmpty(form.getDescripcion()));
         valores.put("correccion", nullToEmpty(form.getCorreccion()));
         valores.put("evidencias", normalizarEvidencias(form.getEvidencia()));
+        // Nombres utilizados por las plantillas del catálogo.
+        valores.put("TM", nullToEmpty(teamMember.getNombre()));
+        valores.put("FECHA ERROR", formatDate(form.getFechaInicio()));
+        valores.put("FECHA DE INGRESO", formatDate(form.getFechaFin()));
+        valores.put("EQUIPO", nullToEmpty(form.getEquipo()));
 
         for (PlantillaVariable relacion : plantilla.getVariables()) {
             Variable variable = relacion.getVariable();

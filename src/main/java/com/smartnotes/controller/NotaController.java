@@ -4,7 +4,9 @@ import com.smartnotes.dto.NotaGeneradorForm;
 import com.smartnotes.service.NotaCorreccionService;
 import com.smartnotes.service.PlantillaService;
 import com.smartnotes.service.TeamMemberService;
+import com.smartnotes.service.UsuarioService;
 import jakarta.validation.Valid;
+import java.security.Principal;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,8 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
-import com.smartnotes.service.UsuarioService;
-import java.security.Principal;
 
 @Controller
 @RequestMapping("/Generador_Notas")
@@ -41,6 +41,7 @@ public class NotaController {
         this.usuarioService = usuarioService;
     }
 
+    // Datos del usuario que aparecen en la cabecera.
     @ModelAttribute
     public void prepararUsuarioCabecera(
             Principal principal,
@@ -71,13 +72,8 @@ public class NotaController {
                 });
     }
 
-    // Abrir el generador, opcionalmente con una plantilla seleccionada.
-    @GetMapping({"", "/generador"})
-    public String mostrarGenerador(
-            @RequestParam(required = false) Integer plantillaId,
-            Authentication autenticacion,
-            Model model) {
-
+    // Datos necesarios para mostrar el formulario.
+    private void cargarDatosFormulario(Model model) {
         model.addAttribute(
                 "plantillas",
                 plantillaService.findAllActive()
@@ -87,6 +83,16 @@ public class NotaController {
                 "miembros",
                 teamMemberService.findAll()
         );
+    }
+
+    // Abrir el generador.
+    @GetMapping({"", "/generador"})
+    public String mostrarGenerador(
+            @RequestParam(required = false) Integer plantillaId,
+            Authentication autenticacion,
+            Model model) {
+
+        cargarDatosFormulario(model);
 
         if (!model.containsAttribute("form")) {
             NotaGeneradorForm form = new NotaGeneradorForm();
@@ -94,12 +100,10 @@ public class NotaController {
             if (plantillaId != null) {
                 var plantilla = plantillaService.buscarPorId(plantillaId)
                         .filter(p -> p.isActivo())
-                        .orElseThrow(()
-                                -> new ResponseStatusException(
-                                        HttpStatus.NOT_FOUND,
-                                        "La plantilla no existe o está inactiva."
-                                )
-                        );
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "La plantilla no existe o está inactiva."
+                        ));
 
                 boolean autorizado = autenticacion != null
                         && autenticacion.getAuthorities().stream()
@@ -119,8 +123,7 @@ public class NotaController {
                 if (!autorizado) {
                     throw new ResponseStatusException(
                             HttpStatus.FORBIDDEN,
-                            "Tu perfil no está autorizado "
-                            + "para usar esta plantilla."
+                            "Tu perfil no está autorizado para usar esta plantilla."
                     );
                 }
 
@@ -140,51 +143,50 @@ public class NotaController {
             BindingResult bindingResult,
             Model model) {
 
-        model.addAttribute(
-                "plantillas",
-                plantillaService.findAllActive()
-        );
-
-        model.addAttribute(
-                "miembros",
-                teamMemberService.findAll()
-        );
-
-        if (bindingResult.hasErrors()) {
-            return "Generador_Notas/generador";
-        }
-
-        model.addAttribute(
-                "preview",
-                notaCorreccionService.generarVistaPrevia(form)
-        );
-
-        return "Generador_Notas/generador";
-    }
-
-    // Guardar una nota nueva.
-    @PostMapping("/generador/guardar")
-    public String guardar(
-            @Valid @ModelAttribute("form") NotaGeneradorForm form,
-            BindingResult bindingResult,
-            Model model) {
-
-        model.addAttribute(
-                "plantillas",
-                plantillaService.findAllActive()
-        );
-
-        model.addAttribute(
-                "miembros",
-                teamMemberService.findAll()
-        );
+        cargarDatosFormulario(model);
 
         if (bindingResult.hasErrors()) {
             return "Generador_Notas/generador";
         }
 
         try {
-            var nota = notaCorreccionService.guardar(form);
+            model.addAttribute(
+                    "preview",
+                    notaCorreccionService.generarVistaPrevia(form)
+            );
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+
+        return "Generador_Notas/generador";
+    }
+
+    // Guardar una nota nueva con el usuario de la sesión.
+    @PostMapping("/generador/guardar")
+    public String guardar(
+            @Valid @ModelAttribute("form") NotaGeneradorForm form,
+            BindingResult bindingResult,
+            Model model,
+            Principal principal) {
+
+        cargarDatosFormulario(model);
+
+        if (bindingResult.hasErrors()) {
+            return "Generador_Notas/generador";
+        }
+
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            var usuario = usuarioService
+                    .getUsuarioPorUsername(principal.getName())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "No se encontró el usuario de la sesión."
+                    ));
+
+            var nota = notaCorreccionService.guardar(form, usuario);
 
             return "redirect:/Generador_Notas/notas/"
                     + nota.getIdNota();
@@ -245,19 +247,15 @@ public class NotaController {
         form.setCorreccion(nota.getCorreccionRealizada());
         form.setEvidencia(nota.getEvidenciaObjetiva());
 
+        form.setGuardarComoBorrador(
+                nota.getEstado()
+                == com.smartnotes.domain.EstadoNota.BORRADOR
+        );
+
         model.addAttribute("form", form);
-
-        model.addAttribute(
-                "plantillas",
-                plantillaService.findAllActive()
-        );
-
-        model.addAttribute(
-                "miembros",
-                teamMemberService.findAll()
-        );
-
         model.addAttribute("notaId", id);
+
+        cargarDatosFormulario(model);
 
         return "Generador_Notas/generador";
     }
@@ -270,19 +268,10 @@ public class NotaController {
             BindingResult bindingResult,
             Model model) {
 
-        model.addAttribute(
-                "plantillas",
-                plantillaService.findAllActive()
-        );
-
-        model.addAttribute(
-                "miembros",
-                teamMemberService.findAll()
-        );
+        cargarDatosFormulario(model);
+        model.addAttribute("notaId", id);
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("notaId", id);
-
             return "Generador_Notas/generador";
         }
 
@@ -293,7 +282,6 @@ public class NotaController {
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("notaId", id);
 
             return "Generador_Notas/generador";
         }
@@ -307,7 +295,6 @@ public class NotaController {
         return "redirect:/Generador_Notas/notas";
     }
 
-    // Redirigir al generador.
     @GetMapping("/")
     public String index() {
         return "redirect:/Generador_Notas/generador";

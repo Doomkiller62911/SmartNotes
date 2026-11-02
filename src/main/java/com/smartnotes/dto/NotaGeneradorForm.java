@@ -24,6 +24,8 @@ public class NotaGeneradorForm {
     @NotBlank(message = "La corrección no puede estar vacía.")
     private String correccion;
 
+    private String equipo;
+
     private String evidencia;
 
     private boolean guardarComoBorrador;
@@ -77,6 +79,14 @@ public class NotaGeneradorForm {
 
     public void setCorreccion(String correccion) {
         this.correccion = correccion;
+    }
+
+    public String getEquipo() {
+        return equipo;
+    }
+
+    public void setEquipo(String equipo) {
+        this.equipo = equipo;
     }
 
     public String getEvidencia() {

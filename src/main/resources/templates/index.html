@@ -3,215 +3,213 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 
-<head th:replace="~{general/fragmentos :: head}"></head>
+    <head th:replace="~{general/fragmentos :: head}"></head>
 
-<body>
-<header th:replace="~{general/fragmentos :: header}"></header>
+    <body>
 
-<main class="container py-5">
+        <aside th:replace="~{general/fragmentos :: header}"></aside>
 
-    <!-- Bienvenida -->
-    <section class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-body p-4 p-lg-5">
+        <main class="container-fluid p-4 p-lg-5">
 
-            <div class="row align-items-center g-4">
-                <div class="col-lg-9">
-                    <p class="text-primary fw-semibold mb-2">
-                        SMARTNOTES · NOTAS DE PLANTA
-                    </p>
+            <!-- Bienvenida -->
+            <section class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 p-lg-5">
 
-                    <h1 class="fw-bold mb-3">
-                        Bienvenido<span th:if="${usuario != null}"
-                            th:text="|, ${usuario.nombre}|"></span>
-                    </h1>
+                    <div class="row align-items-center g-4">
 
-                    <p class="text-secondary fs-5 mb-3">
-                        Consulta plantillas estandarizadas y revisa
-                        los campos necesarios para preparar tus
-                        notas de corrección.
-                    </p>
+                        <div class="col-lg-9">
+                            <p class="text-primary fw-semibold mb-2">
+                                SMARTNOTES · NOTAS DE PLANTA
+                            </p>
 
-                    <div th:if="${usuario != null}"
-                         class="d-flex flex-wrap align-items-center gap-2">
+                            <h1 class="fw-bold mb-3">
+                                Bienvenido<span th:if="${usuario != null}"
+                                                th:text="|, ${usuario.nombre}|"></span>
+                            </h1>
 
-                        <span class="badge bg-primary"
-                              th:text="${usuario.rol.nombre}">
-                            Perfil
-                        </span>
+                            <p class="text-secondary fs-5 mb-3">
+                                Consulta plantillas estandarizadas y prepara
+                                tus notas de corrección.
+                            </p>
 
-                        <span class="text-secondary"
-                              th:text="${usuario.puesto}">
-                            Puesto
-                        </span>
-                    </div>
-                </div>
+                            <div th:if="${usuario != null}"
+                                 class="d-flex flex-wrap align-items-center gap-2">
 
-                <div class="col-lg-3 text-center d-none d-lg-block">
-                    <div class="bg-primary bg-opacity-10
-                                rounded-4 p-4 text-primary">
-                        <i class="fa-solid fa-pen-to-square display-2"
-                           aria-hidden="true"></i>
-                    </div>
-                </div>
-            </div>
+                                <span class="badge bg-primary"
+                                      th:text="${usuario.rol.nombre}">
+                                    Perfil
+                                </span>
 
-        </div>
-    </section>
-
-    <!-- Accesos -->
-    <section class="mb-5" aria-labelledby="tituloAccesos">
-        <h2 id="tituloAccesos" class="h4 fw-bold mb-2">
-            ¿Qué deseas hacer?
-        </h2>
-
-        <p class="text-secondary mb-4">
-            Accede a las opciones disponibles para tu perfil.
-        </p>
-
-        <div class="row g-4">
-
-            <!-- Catálogo: todos los usuarios autenticados -->
-            <div class="col-12 col-lg-6">
-                <article class="card h-100 border-0 shadow-sm rounded-4">
-                    <div class="card-body p-4 d-flex flex-column">
-
-                        <div class="text-primary fs-2 mb-3">
-                            <i class="fa-solid fa-folder-open"
-                               aria-hidden="true"></i>
+                                <span class="text-secondary"
+                                      th:text="${usuario.puesto}">
+                                    Puesto
+                                </span>
+                            </div>
                         </div>
 
-                        <h3 class="h5 fw-bold">
-                            Catálogo de plantillas
-                        </h3>
-
-                        <p class="text-secondary mb-4">
-                            Busca plantillas por nombre, filtra por
-                            categoría y perfil, y consulta su contenido
-                            y las variables que utilizan.
-                        </p>
-
-                        <a class="btn btn-primary mt-auto align-self-start"
-                           th:href="@{/plantillas}">
-                            Consultar plantillas
-                            <i class="fa-solid fa-arrow-right ms-2"
-                               aria-hidden="true"></i>
-                        </a>
-
-                    </div>
-                </article>
-            </div>
-
-            <!-- Administración: solo ADMIN -->
-            <div class="col-12 col-lg-6"
-                 sec:authorize="hasRole('ADMIN')">
-
-                <article class="card h-100 border-0 shadow-sm rounded-4">
-                    <div class="card-body p-4 d-flex flex-column">
-
-                        <div class="d-flex justify-content-between
-                                    align-items-start mb-3">
-
-                            <span class="text-primary fs-2">
-                                <i class="fa-solid fa-sliders"
+                        <div class="col-lg-3 text-center d-none d-lg-block">
+                            <div class="bg-primary bg-opacity-10
+                                 rounded-4 p-4 text-primary">
+                                <i class="fa-solid fa-pen-to-square display-2"
                                    aria-hidden="true"></i>
-                            </span>
-
-                            <span class="badge bg-primary bg-opacity-10
-                                         text-primary">
-                                ADMINISTRACIÓN
-                            </span>
+                            </div>
                         </div>
 
-                        <h3 class="h5 fw-bold">
-                            Administración de plantillas
-                        </h3>
+                    </div>
+                </div>
+            </section>
 
-                        <p class="text-secondary mb-4">
-                            Crea y edita plantillas, define sus variables
-                            y perfiles autorizados, y administra
-                            cuáles están activas.
-                        </p>
+            <!-- Accesos -->
+            <section class="mb-5" aria-labelledby="tituloAccesos">
 
-                        <a class="btn btn-outline-primary
-                                  mt-auto align-self-start"
-                           th:href="@{/plantillas/administracion}">
-                            Administrar plantillas
-                            <i class="fa-solid fa-arrow-right ms-2"
-                               aria-hidden="true"></i>
-                        </a>
+                <h2 id="tituloAccesos" class="h4 fw-bold mb-2">
+                    ¿Qué deseas hacer?
+                </h2>
+
+                <p class="text-secondary mb-4">
+                    Accede a las opciones disponibles para tu perfil.
+                </p>
+
+                <div class="row g-4">
+
+                    <!-- Catálogo -->
+                    <div class="col-12 col-lg-6">
+                        <article class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4 d-flex flex-column">
+
+                                <div class="text-primary fs-2 mb-3">
+                                    <i class="fa-solid fa-folder-open"
+                                       aria-hidden="true"></i>
+                                </div>
+
+                                <h3 class="h5 fw-bold">
+                                    Catálogo de plantillas
+                                </h3>
+
+                                <p class="text-secondary mb-4">
+                                    Busca plantillas por nombre, filtra por
+                                    categoría y perfil, y consulta su contenido
+                                    y sus variables.
+                                </p>
+
+                                <a class="btn btn-primary mt-auto align-self-start"
+                                   th:href="@{/plantillas}">
+                                    Consultar plantillas
+                                </a>
+
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- Administración: solo ADMIN -->
+                    <div class="col-12 col-lg-6"
+                         sec:authorize="hasRole('ADMIN')">
+
+                        <article class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4 d-flex flex-column">
+
+                                <div class="d-flex justify-content-between
+                                     align-items-start mb-3">
+
+                                    <span class="text-primary fs-2">
+                                        <i class="fa-solid fa-sliders"
+                                           aria-hidden="true"></i>
+                                    </span>
+
+                                    <span class="badge bg-primary bg-opacity-10
+                                          text-primary">
+                                        ADMINISTRACIÓN
+                                    </span>
+                                </div>
+
+                                <h3 class="h5 fw-bold">
+                                    Administración de plantillas
+                                </h3>
+
+                                <p class="text-secondary mb-4">
+                                    Crea y edita plantillas, define sus variables
+                                    y perfiles autorizados, y activa o desactiva
+                                    las que estén disponibles.
+                                </p>
+
+                                <a class="btn btn-outline-primary
+                                   mt-auto align-self-start"
+                                   th:href="@{/plantillas/administracion}">
+                                    Administrar plantillas
+                                </a>
+
+                            </div>
+                        </article>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Guía -->
+            <section class="card border-0 shadow-sm rounded-4"
+                     aria-labelledby="tituloGuia">
+
+                <div class="card-body p-4 p-lg-5">
+
+                    <h2 id="tituloGuia" class="h4 fw-bold mb-4">
+                        Comienza con una plantilla
+                    </h2>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-4">
+                            <span class="badge rounded-pill bg-primary mb-3">
+                                1
+                            </span>
+
+                            <h3 class="h6 fw-bold">
+                                Encuentra la plantilla
+                            </h3>
+
+                            <p class="text-secondary small mb-0">
+                                Entra al catálogo y utiliza la búsqueda
+                                y los filtros para localizar la opción
+                                que necesitas.
+                            </p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <span class="badge rounded-pill bg-primary mb-3">
+                                2
+                            </span>
+
+                            <h3 class="h6 fw-bold">
+                                Revisa su contenido
+                            </h3>
+
+                            <p class="text-secondary small mb-0">
+                                Pulsa «Ver detalle» para consultar
+                                el texto y sus variables.
+                            </p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <span class="badge rounded-pill bg-primary mb-3">
+                                3
+                            </span>
+
+                            <h3 class="h6 fw-bold">
+                                Genera la nota
+                            </h3>
+
+                            <p class="text-secondary small mb-0">
+                                Pulsa «Usar en generador», completa los datos
+                                y revisa la vista previa antes de guardar.
+                            </p>
+                        </div>
 
                     </div>
-                </article>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Orientación -->
-    <section class="card border-0 shadow-sm rounded-4"
-             aria-labelledby="tituloGuia">
-
-        <div class="card-body p-4 p-lg-5">
-            <h2 id="tituloGuia" class="h4 fw-bold mb-4">
-                Comienza con una plantilla
-            </h2>
-
-            <div class="row g-4">
-
-                <div class="col-md-4">
-                    <span class="badge rounded-pill bg-primary mb-3">
-                        1
-                    </span>
-
-                    <h3 class="h6 fw-bold">
-                        Encuentra la plantilla
-                    </h3>
-
-                    <p class="text-secondary small mb-0">
-                        Entra al catálogo y utiliza la búsqueda
-                        y los filtros para localizar la opción
-                        que necesitas.
-                    </p>
                 </div>
+            </section>
 
-                <div class="col-md-4">
-                    <span class="badge rounded-pill bg-primary mb-3">
-                        2
-                    </span>
+        </main>
 
-                    <h3 class="h6 fw-bold">
-                        Revisa su contenido
-                    </h3>
+        <footer th:replace="~{general/fragmentos :: footer}"></footer>
 
-                    <p class="text-secondary small mb-0">
-                        Pulsa «Ver detalle» para consultar
-                        el texto y comprobar que corresponde
-                        a la situación.
-                    </p>
-                </div>
-
-                <div class="col-md-4">
-                    <span class="badge rounded-pill bg-primary mb-3">
-                        3
-                    </span>
-
-                    <h3 class="h6 fw-bold">
-                        Identifica los datos necesarios
-                    </h3>
-
-                    <p class="text-secondary small mb-0">
-                        Consulta las variables obligatorias
-                        y revisa si la plantilla requiere
-                        evidencia.
-                    </p>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-</main>
-
-<footer th:replace="~{general/fragmentos :: footer}"></footer>
-</body>
+    </body>
 </html>

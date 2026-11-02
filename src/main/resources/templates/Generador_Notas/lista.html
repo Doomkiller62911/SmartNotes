@@ -1,56 +1,122 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8"/>
-    <title>Notas guardadas</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f6fb; margin: 0; padding: 0; }
-        .container { max-width: 1100px; margin: 32px auto; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,.08); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eaedf5; text-align: left; }
-        th { background: #f5f8ff; }
-        .actions a, .actions button { margin-right: 8px; text-decoration: none; color: #1f6feb; font-weight: 600; background: none; border: none; cursor: pointer; }
-        .danger { color: #b42318; }
-        .nav { display: flex; gap: 12px; margin-bottom: 20px; }
-        .nav a { text-decoration: none; color: #1f6feb; font-weight: 600; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="nav">
-        <a th:href="@{/Generador_Notas/generador}">Generador</a>
-    </div>
 
-    <h2>Notas guardadas</h2>
+    <head th:replace="~{general/fragmentos :: head}"></head>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Plantilla</th>
-                <th>Responsable</th>
-                <th>Estado</th>
-                <th>Fechas</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="nota : ${notas}">
-                <td th:text="${nota.idNota}"></td>
-                <td th:text="${nota.plantilla.nombre}"></td>
-                <td th:text="${nota.teamMember.nombre}"></td>
-                <td th:text="${nota.estado}"></td>
-                <td th:text="${#temporals.format(nota.fechaError, 'dd/MM/yyyy') + ' - ' + #temporals.format(nota.fechaEmision, 'dd/MM/yyyy')}"></td>
-                <td class="actions">
-                    <a th:href="@{/Generador_Notas/notas/{id}(id=${nota.idNota})}">Ver</a>
-                    <a th:href="@{/Generador_Notas/notas/{id}/editar(id=${nota.idNota})}">Editar</a>
-                    <form th:action="@{/Generador_Notas/notas/{id}/eliminar(id=${nota.idNota})}" method="post" style="display:inline;">
-                        <button type="submit" class="danger">Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-</body>
+    <body>
+
+        <aside th:replace="~{general/fragmentos :: header}"></aside>
+
+        <main class="container-fluid p-4 p-lg-5">
+
+            <div th:replace="~{general/fragmentos :: usuarioActual}"></div>
+
+            <nav class="mb-4" aria-label="Volver al generador">
+                <a th:href="@{/Generador_Notas/generador}"
+                   class="btn btn-outline-primary">
+                    ← Volver al generador
+                </a>
+            </nav>
+
+            <section class="sn-panel">
+
+                <h1 class="h3 fw-bold mb-4">
+                    Notas guardadas
+                </h1>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Plantilla</th>
+                                <th scope="col">Responsable</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Fecha del error</th>
+                                <th scope="col">Fecha de emisión</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:if="${#lists.isEmpty(notas)}">
+                                <td colspan="7"
+                                    class="text-center text-secondary py-4">
+                                    No hay notas guardadas.
+                                </td>
+                            </tr>
+
+                            <tr th:each="nota : ${notas}">
+
+                                <td th:text="${nota.idNota}"></td>
+
+                                <td th:text="${nota.plantilla != null
+                                    ? nota.plantilla.nombre
+                                    : 'Sin plantilla'}">
+                                </td>
+
+                                <td th:text="${nota.teamMember != null
+                                    ? nota.teamMember.nombre
+                                    : 'Sin miembro asignado'}">
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-secondary"
+                                          th:text="${nota.estado}">
+                                    </span>
+                                </td>
+
+                                <td th:text="${nota.fechaError != null
+                                    ? #temporals.format(
+                                    nota.fechaError, 'dd/MM/yyyy')
+                                    : 'Sin fecha'}">
+                                </td>
+
+                                <td th:text="${nota.fechaEmision != null
+                                    ? #temporals.format(
+                                    nota.fechaEmision, 'dd/MM/yyyy')
+                                    : 'Sin fecha'}">
+                                </td>
+
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+
+                                        <a th:href="@{/Generador_Notas/notas/{id}(id=${nota.idNota})}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Ver
+                                        </a>
+
+                                        <a th:href="@{/Generador_Notas/notas/{id}/editar(id=${nota.idNota})}"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            Editar
+                                        </a>
+
+                                        <form th:action="@{/Generador_Notas/notas/{id}/eliminar(id=${nota.idNota})}"
+                                              method="post"
+                                              class="m-0"
+                                              onsubmit="return confirm('¿Deseas eliminar esta nota?');">
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                Eliminar
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </main>
+
+    </body>
 </html>
