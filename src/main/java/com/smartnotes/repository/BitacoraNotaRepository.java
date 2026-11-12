@@ -16,13 +16,13 @@ public interface BitacoraNotaRepository extends JpaRepository<NotaCorreccion, In
     @Query("SELECT n FROM NotaCorreccion n "
             + "JOIN n.teamMember t "
             + "LEFT JOIN n.categoria c "
-            + "WHERE n.estado = :estado "
+            + "WHERE n.estado <> :estadoExcluido "
             + "AND LOWER(t.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) "
             + "AND (:idCategoria IS NULL OR c.idCategoria = :idCategoria) "
             + "AND (:fecha IS NULL OR n.fechaError = :fecha) "
             + "ORDER BY n.idNota DESC")
     List<NotaCorreccion> consultaBitacora(
-            @Param("estado") EstadoNota estado,
+            @Param("estadoExcluido") EstadoNota estadoExcluido,
             @Param("nombre") String nombre,
             @Param("idCategoria") Integer idCategoria,
             @Param("fecha") LocalDate fecha);

@@ -1,7 +1,9 @@
 package com.smartnotes.domain;
 
-// Estados de una nota de corrección en este avance
+// Estados de una nota de corrección. Quedan así para este último avance.
 public enum EstadoNota {
     BORRADOR,
-    FINALIZADA
+    PENDIENTE_REVISION,
+    APROBADA,
+    RECHAZADA
 }

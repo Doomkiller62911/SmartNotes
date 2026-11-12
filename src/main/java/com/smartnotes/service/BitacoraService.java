@@ -28,7 +28,7 @@ public class BitacoraService {
             nombre = nombreTeamMember.trim();
         }
         
-        return bitacoraNotaRepository.consultaBitacora(EstadoNota.FINALIZADA, nombre, idCategoria, fecha);
+        return bitacoraNotaRepository.consultaBitacora(EstadoNota.BORRADOR, nombre, idCategoria, fecha);
     
     }
     
@@ -40,7 +40,7 @@ public class BitacoraService {
         }
         
         Optional<NotaCorreccion> nota = bitacoraNotaRepository.findById(idNota);
-        if (nota.isPresent() && nota.get().getEstado() != EstadoNota.FINALIZADA) {
+        if (nota.isPresent() && nota.get().getEstado() == EstadoNota.BORRADOR) {
             return Optional.empty();
             
         }

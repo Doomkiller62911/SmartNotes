@@ -132,7 +132,7 @@ public class NotaCorreccionService {
         nota.setEvidenciaObjetiva(normalizarEvidencias(form.getEvidencia()));
         nota.setEstado(form.isGuardarComoBorrador()
                 ? EstadoNota.BORRADOR
-                : EstadoNota.FINALIZADA);
+                : EstadoNota.PENDIENTE_REVISION); //Se cambia de acuerdo con los cambios realizados en los estados.
     }
 
     private String construirContenido(
