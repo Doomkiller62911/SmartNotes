@@ -231,6 +231,10 @@ public class NotaController {
 
         var nota = notaCorreccionService.findById(id);
 
+        if (!notaCorreccionService.esEditable(nota)) {
+            return "redirect:/Generador_Notas/notas/" + id;
+        }
+
         NotaGeneradorForm form = new NotaGeneradorForm();
 
         form.setPlantillaId(
@@ -266,7 +270,8 @@ public class NotaController {
             @PathVariable Integer id,
             @Valid @ModelAttribute("form") NotaGeneradorForm form,
             BindingResult bindingResult,
-            Model model) {
+            Model model,
+            Principal principal) {
 
         cargarDatosFormulario(model);
         model.addAttribute("notaId", id);
@@ -275,8 +280,18 @@ public class NotaController {
             return "Generador_Notas/generador";
         }
 
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
         try {
-            notaCorreccionService.actualizar(id, form);
+            var usuario = usuarioService
+                    .getUsuarioPorUsername(principal.getName())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "No se encontró el usuario de la sesión."
+                    ));
+
+            notaCorreccionService.actualizar(id, form, usuario);
 
             return "redirect:/Generador_Notas/notas/" + id;
 
@@ -289,14 +304,20 @@ public class NotaController {
 
     // Eliminar una nota.
     @PostMapping("/notas/{id}/eliminar")
-    public String eliminarNota(@PathVariable Integer id) {
-        notaCorreccionService.eliminar(id);
+    public String eliminarNota(
+            @PathVariable Integer id,
+            Model model) {
 
-        return "redirect:/Generador_Notas/notas";
+        try {
+            notaCorreccionService.eliminar(id);
+            return "redirect:/Generador_Notas/notas";
+
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("notas", notaCorreccionService.findAll());
+
+            return "Generador_Notas/lista";
+        }
     }
 
-    @GetMapping("/")
-    public String index() {
-        return "redirect:/Generador_Notas/generador";
-    }
 }

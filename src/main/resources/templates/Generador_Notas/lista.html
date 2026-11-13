@@ -24,6 +24,19 @@
                     Notas guardadas
                 </h1>
 
+                <div th:if="${error}"
+                     class="alert alert-danger alert-dismissible fade show"
+                     role="alert">
+
+                    <span th:text="${error}"></span>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Cerrar">
+                    </button>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table align-middle">
 
@@ -64,8 +77,9 @@
 
                                 <td>
                                     <span class="badge bg-secondary"
-                                          th:text="${nota.estado}">
+                                          th:text="#{'nota.estado.' + ${nota.estado.name()}}">
                                     </span>
+
                                 </td>
 
                                 <td th:text="${nota.fechaError != null
@@ -88,12 +102,14 @@
                                             Ver
                                         </a>
 
-                                        <a th:href="@{/Generador_Notas/notas/{id}/editar(id=${nota.idNota})}"
+                                        <a th:if="${nota.estado.name() == 'BORRADOR' or nota.estado.name() == 'RECHAZADA'}"
+                                           th:href="@{/Generador_Notas/notas/{id}/editar(id=${nota.idNota})}"
                                            class="btn btn-sm btn-outline-secondary">
                                             Editar
                                         </a>
 
-                                        <form th:action="@{/Generador_Notas/notas/{id}/eliminar(id=${nota.idNota})}"
+                                        <form th:if="${nota.estado.name() == 'BORRADOR'}"
+                                              th:action="@{/Generador_Notas/notas/{id}/eliminar(id=${nota.idNota})}"
                                               method="post"
                                               class="m-0"
                                               onsubmit="return confirm('¿Deseas eliminar esta nota?');">

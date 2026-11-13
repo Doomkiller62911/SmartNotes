@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{general/fragmentos :: head}"></head>
+
+    <body>
+
+        <aside th:replace="~{general/fragmentos :: header}"></aside>
+
+        <main class="container-fluid p-4 p-lg-5">
+
+            <div th:replace="~{general/fragmentos :: usuarioActual}"></div>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <h1 class="fw-bold mb-0" th:text="#{revision.detalle}">Revisión de la nota</h1>
+
+                <a th:href="@{/revision/pendientes}" class="btn btn-outline-primary"
+                   th:text="#{revision.volver}">
+                    Volver a pendientes
+                </a>
+            </div>
+
+            <div class="alert alert-danger" role="alert"
+                 th:if="${error}" th:text="${error}"></div>
+
+            <!-- Datos de la nota -->
+            <section class="sn-panel mb-4">
+                <div class="row g-4">
+
+                    <div class="col-md-4">
+                        <div class="text-secondary small">ID</div>
+                        <div class="fw-semibold" th:text="${nota.idNota}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="text-secondary small" th:text="#{revision.estado}">Estado</div>
+                        <span class="badge"
+                              th:classappend="${nota.estado.name() == 'APROBADA' ? 'bg-success'
+                              : (nota.estado.name() == 'RECHAZADA' ? 'bg-danger'
+                              : (nota.estado.name() == 'PENDIENTE_REVISION' ? 'bg-warning text-dark'
+                              : 'bg-secondary'))}"
+                              th:text="#{'nota.estado.' + ${nota.estado.name()}}">
+                        </span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="text-secondary small" th:text="#{bitacora.col.registradoPor}">Registrado por</div>
+                        <div th:text="${nota.usuario != null
+                             ? nota.usuario.nombre + ' ' + nota.usuario.apellidoPaterno : '-'}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="text-secondary small" th:text="#{bitacora.col.teamMember}">Team Member</div>
+                        <div th:text="${nota.teamMember != null ? nota.teamMember.nombre : '-'}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="text-secondary small" th:text="#{bitacora.col.plantilla}">Plantilla</div>
+                        <div th:text="${nota.plantilla != null ? nota.plantilla.nombre : '-'}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="text-secondary small" th:text="#{bitacora.col.categoria}">Categoría</div>
+                        <div th:text="${nota.categoria != null ? nota.categoria.nombre : '-'}"></div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Contenido -->
+            <section class="sn-panel mb-4">
+                <h2 class="h5 mb-3" th:text="#{revision.contenido}">Contenido generado</h2>
+                <div style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                     th:text="${nota.contenidoGenerado}"></div>
+            </section>
+
+            <section class="sn-panel mb-4">
+                <div class="mb-4">
+                    <h2 class="h5" th:text="#{revision.descripcion}">Descripción</h2>
+                    <p class="mb-0" style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                       th:text="${nota.descripcionError}"></p>
+                </div>
+
+                <div class="mb-4">
+                    <h2 class="h5" th:text="#{revision.correccion}">Corrección realizada</h2>
+                    <p class="mb-0" style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                       th:text="${nota.correccionRealizada}"></p>
+                </div>
+
+                <div>
+                    <h2 class="h5" th:text="#{revision.evidencias}">Evidencias</h2>
+                    <p class="mb-0" style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                       th:text="${nota.evidenciaObjetiva != null ? nota.evidenciaObjetiva : '-'}"></p>
+                </div>
+            </section>
+
+            <!-- Si ya fue revisada, se muestra el resultado -->
+            <section class="sn-panel mb-4"
+                     th:if="${nota.revisor != null}">
+                <h2 class="h5 mb-3" th:text="#{revision.resultado}">Resultado de la revisión</h2>
+                <p class="mb-1">
+                    <span class="text-secondary small" th:text="#{revision.revisadoPor}">Revisada por</span>:
+                    <span th:text="${nota.revisor.nombre + ' ' + nota.revisor.apellidoPaterno}"></span>
+                </p>
+                <p class="mb-1" th:if="${nota.fechaRevision != null}">
+                    <span class="text-secondary small" th:text="#{revision.fechaRevision}">Fecha</span>:
+                    <span th:text="${#temporals.format(nota.fechaRevision, 'dd/MM/yyyy HH:mm')}"></span>
+                </p>
+                <p class="mb-0" th:if="${nota.motivoRechazo != null}"
+                   style="white-space: pre-wrap; overflow-wrap: anywhere;">
+                    <span class="text-secondary small" th:text="#{revision.motivo}">Motivo del rechazo</span>:
+                    <span th:text="${nota.motivoRechazo}"></span>
+                </p>
+            </section>
+
+            <!-- Acciones: solo si la nota está pendiente -->
+            <section class="sn-panel"
+                     th:if="${nota.estado.name() == 'PENDIENTE_REVISION'}">
+
+                <div class="row g-4">
+
+                    <div class="col-md-4">
+                        <h2 class="h5 mb-3" th:text="#{revision.aprobar}">Aprobar</h2>
+                        <form th:action="@{/revision/{id}/aprobar(id=${nota.idNota})}"
+                              method="post"
+                              th:data-confirm="#{revision.confirmarAprobar}"
+                              onsubmit="return confirm(this.dataset.confirm);">
+                            <button type="submit" class="btn btn-success w-100"
+                                    th:text="#{revision.aprobar}">
+                                Aprobar
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="col-md-8">
+                        <h2 class="h5 mb-3" th:text="#{revision.rechazar}">Rechazar</h2>
+                        <form th:action="@{/revision/{id}/rechazar(id=${nota.idNota})}"
+                              method="post">
+                            <label for="motivo" class="form-label" th:text="#{revision.motivo}">
+                                Motivo del rechazo
+                            </label>
+                            <textarea id="motivo" name="motivo" class="form-control mb-2"
+                                      rows="3" maxlength="450" required></textarea>
+                            <div class="form-text mb-3" th:text="#{revision.motivo.ayuda}">
+                                Obligatorio. Máximo 450 caracteres.
+                            </div>
+                            <button type="submit" class="btn btn-danger"
+                                    th:text="#{revision.rechazar}">
+                                Rechazar
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+
+    </body>
+</html>

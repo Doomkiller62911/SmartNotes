@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{general/fragmentos :: head}"></head>
+
+    <body>
+
+        <aside th:replace="~{general/fragmentos :: header}"></aside>
+
+        <main class="container-fluid p-4 p-lg-5">
+
+            <div th:replace="~{general/fragmentos :: usuarioActual}"></div>
+
+            <div class="mb-4">
+                <h1 class="h3 fw-bold mb-1" th:text="#{revision.titulo}">Revisión de Notas</h1>
+                <p class="text-secondary mb-0" th:text="#{revision.subtitulo}">
+                    Notas pendientes de aprobación por Release.
+                </p>
+            </div>
+
+            <!-- Mensajes (vienen del controlador con RedirectAttributes) -->
+            <div class="alert alert-success" role="alert"
+                 th:if="${todoOk}" th:text="${todoOk}"></div>
+            <div class="alert alert-danger" role="alert"
+                 th:if="${error}" th:text="${error}"></div>
+
+            <section class="sn-panel">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0" th:text="#{revision.pendientes}">Notas pendientes</h2>
+                    <span class="badge bg-warning text-dark" th:text="${totalPendientes}">0</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col" th:text="#{bitacora.col.fechaRegistro}">Fecha de registro</th>
+                                <th scope="col" th:text="#{bitacora.col.teamMember}">Team Member</th>
+                                <th scope="col" th:text="#{bitacora.col.plantilla}">Plantilla</th>
+                                <th scope="col" th:text="#{bitacora.col.categoria}">Categoría</th>
+                                <th scope="col" th:text="#{bitacora.col.registradoPor}">Registrado por</th>
+                                <th scope="col" th:text="#{bitacora.col.acciones}">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:if="${#lists.isEmpty(notas)}">
+                                <td colspan="7" class="text-center text-secondary py-4"
+                                    th:text="#{revision.sinPendientes}">
+                                    No hay notas pendientes de revisión.
+                                </td>
+                            </tr>
+
+                            <tr th:each="nota : ${notas}">
+                                <td th:text="${nota.idNota}"></td>
+
+                                <td th:text="${nota.fechaCreacion != null
+                                    ? #temporals.format(nota.fechaCreacion, 'dd/MM/yyyy HH:mm')
+                                    : '-'}"></td>
+
+                                <td th:text="${nota.teamMember != null ? nota.teamMember.nombre : '-'}"></td>
+
+                                <td th:text="${nota.plantilla != null ? nota.plantilla.nombre : '-'}"></td>
+
+                                <td th:text="${nota.categoria != null ? nota.categoria.nombre : '-'}"></td>
+
+                                <td th:text="${nota.usuario != null
+                                    ? nota.usuario.nombre + ' ' + nota.usuario.apellidoPaterno
+                                    : '-'}"></td>
+
+                                <td>
+                                    <a th:href="@{/revision/{id}(id=${nota.idNota})}"
+                                       class="btn btn-sm btn-primary"
+                                       th:text="#{revision.revisar}">
+                                        Revisar
+                                    </a>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </main>
+
+    </body>
+</html>

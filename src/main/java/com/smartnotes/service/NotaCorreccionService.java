@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.smartnotes.domain.Usuario;
 
-
 @Service
 public class NotaCorreccionService {
 
@@ -97,14 +96,34 @@ public class NotaCorreccionService {
         aplicarFormulario(nota, form);
         nota.setContenidoGenerado(construirContenido(plantilla, teamMember, form));
 
-        return notaCorreccionRepository.save(nota);
+        NotaCorreccion guardada = notaCorreccionRepository.save(nota);
+
+        // Primer evento del historial de la nota
+        notaHistorialService.registrar(guardada, null, guardada.getEstado(), usuario,
+                guardada.getEstado() == EstadoNota.BORRADOR
+                ? "Nota guardada como borrador"
+                : "Nota enviada a revisión");
+
+        return guardada;
+    }
+
+    // Solo se pueden editar notas en BORRADOR o RECHAZADA
+    public boolean esEditable(NotaCorreccion nota) {
+        return nota.getEstado() == EstadoNota.BORRADOR
+                || nota.getEstado() == EstadoNota.RECHAZADA;
     }
 
     @Transactional
-    public NotaCorreccion actualizar(Integer id, NotaGeneradorForm form) {
+    public NotaCorreccion actualizar(Integer id, NotaGeneradorForm form, Usuario usuario) {
         validarFormulario(form);
 
         NotaCorreccion nota = findById(id);
+        if (!esEditable(nota)) {
+            throw new IllegalArgumentException(
+                    "Solo se pueden editar notas en borrador o rechazadas.");
+        }
+
+        EstadoNota estadoAnterior = nota.getEstado();
         Plantilla plantilla = plantillaService.findById(form.getPlantillaId());
         TeamMember teamMember = teamMemberService.findById(form.getTeamMemberId());
 
@@ -113,12 +132,23 @@ public class NotaCorreccionService {
         aplicarFormulario(nota, form);
         nota.setContenidoGenerado(construirContenido(plantilla, teamMember, form));
 
-        return notaCorreccionRepository.save(nota);
+        NotaCorreccion guardada = notaCorreccionRepository.save(nota);
+
+        // Si cambio de estado (por ejemplo BORRADOR -> PENDIENTE_REVISION), se registra
+        if (estadoAnterior != guardada.getEstado()) {
+            notaHistorialService.registrar(guardada, estadoAnterior,
+                    guardada.getEstado(), usuario, "Nota enviada a revisión");
+        }
+        return guardada;
     }
 
     @Transactional
     public void eliminar(Integer id) {
-        notaCorreccionRepository.deleteById(id);
+        NotaCorreccion nota = findById(id);
+        if (nota.getEstado() != EstadoNota.BORRADOR) {
+            throw new IllegalArgumentException("Solo se pueden eliminar notas en Borrador.");
+        }
+        notaCorreccionRepository.delete(nota);
     }
 
     private void validarFormulario(NotaGeneradorForm form) {
