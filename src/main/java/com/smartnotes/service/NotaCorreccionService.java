@@ -18,20 +18,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.smartnotes.domain.Usuario;
 
+
 @Service
 public class NotaCorreccionService {
 
     private final NotaCorreccionRepository notaCorreccionRepository;
     private final PlantillaService plantillaService;
     private final TeamMemberService teamMemberService;
+    private final NotaHistorialService notaHistorialService;
 
     public NotaCorreccionService(
             NotaCorreccionRepository notaCorreccionRepository,
             PlantillaService plantillaService,
-            TeamMemberService teamMemberService) {
+            TeamMemberService teamMemberService,
+            NotaHistorialService notaHistorialService) {
         this.notaCorreccionRepository = notaCorreccionRepository;
         this.plantillaService = plantillaService;
         this.teamMemberService = teamMemberService;
+        this.notaHistorialService = notaHistorialService;
     }
 
     public List<NotaCorreccion> findAll() {

@@ -65,4 +65,15 @@ public class NotaCorreccion implements Serializable {
 
     @Column(name = "fecha_modificacion", insertable = false, updatable = false)
     private LocalDateTime fechaModificacion;
+    
+     // Datos de la revision de Release (HU 11)
+    @Column(name = "motivo_rechazo", columnDefinition = "TEXT")
+    private String motivoRechazo;
+
+    @ManyToOne
+    @JoinColumn(name = "id_revisor")
+    private Usuario revisor;
+
+    @Column(name = "fecha_revision")
+    private LocalDateTime fechaRevision;
 }
