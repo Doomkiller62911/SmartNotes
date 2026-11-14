@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <body>
+
+        <!-- Línea de tiempo de una nota (HU 20).
+             Uso: <div th:replace="~{general/historial :: linea(${historial})}"></div> -->
+        <section th:fragment="linea(historial)" class="sn-panel mb-4">
+
+            <h2 class="h5 mb-3" th:text="#{historial.titulo}">Historial de la nota</h2>
+
+            <p class="text-secondary mb-0"
+               th:if="${#lists.isEmpty(historial)}"
+               th:text="#{historial.vacio}">
+                Esta nota todavía no tiene movimientos registrados.
+            </p>
+
+            <ol class="list-group list-group-numbered"
+                th:unless="${#lists.isEmpty(historial)}">
+
+                <li class="list-group-item" th:each="h : ${historial}">
+
+                    <div class="d-flex flex-wrap justify-content-between gap-2">
+
+                        <div>
+                            <span class="badge bg-secondary"
+                                  th:if="${h.estadoAnterior != null}"
+                                  th:text="#{'nota.estado.' + ${h.estadoAnterior.name()}}"></span>
+                            <span th:if="${h.estadoAnterior != null}">→</span>
+                            <span class="badge"
+                                  th:classappend="${h.estadoNuevo.name() == 'APROBADA' ? 'bg-success'
+                                  : (h.estadoNuevo.name() == 'RECHAZADA' ? 'bg-danger'
+                                  : (h.estadoNuevo.name() == 'PENDIENTE_REVISION' ? 'bg-warning text-dark'
+                                  : 'bg-secondary'))}"
+                                  th:text="#{'nota.estado.' + ${h.estadoNuevo.name()}}"></span>
+                        </div>
+
+                        <small class="text-secondary"
+                               th:text="${h.fechaHora != null
+                               ? #temporals.format(h.fechaHora, 'dd/MM/yyyy HH:mm')
+                               : '-'}"></small>
+                    </div>
+
+                    <div class="small fw-semibold"
+                         th:text="${h.usuario.nombre + ' ' + h.usuario.apellidoPaterno}"></div>
+
+                    <div class="small text-secondary"
+                         style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                         th:if="${h.detalle != null}"
+                         th:text="${h.detalle}"></div>
+                </li>
+            </ol>
+        </section>
+
+    </body>
+</html>

@@ -113,6 +113,9 @@
                 </p>
             </section>
 
+            <!-- Historial de la nota (HU 20) -->
+            <div th:replace="~{general/historial :: linea(${historial})}"></div>
+
             <!-- Acciones: solo si la nota está pendiente -->
             <section class="sn-panel"
                      th:if="${nota.estado.name() == 'PENDIENTE_REVISION'}">

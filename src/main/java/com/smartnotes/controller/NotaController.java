@@ -5,6 +5,7 @@ import com.smartnotes.service.NotaCorreccionService;
 import com.smartnotes.service.PlantillaService;
 import com.smartnotes.service.TeamMemberService;
 import com.smartnotes.service.UsuarioService;
+import com.smartnotes.service.NotaHistorialService;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import org.springframework.http.HttpStatus;
@@ -28,17 +29,20 @@ public class NotaController {
     private final TeamMemberService teamMemberService;
     private final NotaCorreccionService notaCorreccionService;
     private final UsuarioService usuarioService;
+    private final NotaHistorialService notaHistorialService;
 
     public NotaController(
             PlantillaService plantillaService,
             TeamMemberService teamMemberService,
             NotaCorreccionService notaCorreccionService,
-            UsuarioService usuarioService) {
+            UsuarioService usuarioService,
+            NotaHistorialService notaHistorialService) {
 
         this.plantillaService = plantillaService;
         this.teamMemberService = teamMemberService;
         this.notaCorreccionService = notaCorreccionService;
         this.usuarioService = usuarioService;
+        this.notaHistorialService = notaHistorialService;
     }
 
     // Datos del usuario que aparecen en la cabecera.
@@ -141,9 +145,11 @@ public class NotaController {
     public String preview(
             @Valid @ModelAttribute("form") NotaGeneradorForm form,
             BindingResult bindingResult,
+            @RequestParam(required = false) Integer notaId,
             Model model) {
 
         cargarDatosFormulario(model);
+        cargarNotaEnEdicion(model, notaId);
 
         if (bindingResult.hasErrors()) {
             return "Generador_Notas/generador";
@@ -159,6 +165,14 @@ public class NotaController {
         }
 
         return "Generador_Notas/generador";
+    }
+
+    // Cuando se edita una nota: guarda su id y la nota, para el aviso de rechazo
+    private void cargarNotaEnEdicion(Model model, Integer notaId) {
+        if (notaId != null) {
+            model.addAttribute("notaId", notaId);
+            model.addAttribute("notaEditada", notaCorreccionService.findById(notaId));
+        }
     }
 
     // Guardar una nota nueva con el usuario de la sesión.
@@ -215,10 +229,8 @@ public class NotaController {
             @PathVariable Integer id,
             Model model) {
 
-        model.addAttribute(
-                "nota",
-                notaCorreccionService.findById(id)
-        );
+        model.addAttribute("nota", notaCorreccionService.findById(id));
+        model.addAttribute("historial", notaHistorialService.listarPorNota(id));
 
         return "Generador_Notas/detalle";
     }
@@ -257,7 +269,7 @@ public class NotaController {
         );
 
         model.addAttribute("form", form);
-        model.addAttribute("notaId", id);
+        cargarNotaEnEdicion(model, id);
 
         cargarDatosFormulario(model);
 
@@ -274,7 +286,7 @@ public class NotaController {
             Principal principal) {
 
         cargarDatosFormulario(model);
-        model.addAttribute("notaId", id);
+        cargarNotaEnEdicion(model, id);
 
         if (bindingResult.hasErrors()) {
             return "Generador_Notas/generador";

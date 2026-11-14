@@ -1,6 +1,7 @@
 package com.smartnotes.controller;
 
 import com.smartnotes.domain.Usuario;
+import com.smartnotes.service.NotaHistorialService;
 import com.smartnotes.service.RevisionService;
 import com.smartnotes.service.UsuarioService;
 import java.security.Principal;
@@ -26,15 +27,18 @@ public class RevisionController {
 
     private final RevisionService revisionService;
     private final UsuarioService usuarioService;
+    private final NotaHistorialService notaHistorialService;
     private final MessageSource messageSource;
 
     public RevisionController(
             RevisionService revisionService,
             UsuarioService usuarioService,
+            NotaHistorialService notaHistorialService,
             MessageSource messageSource) {
 
         this.revisionService = revisionService;
         this.usuarioService = usuarioService;
+        this.notaHistorialService = notaHistorialService;
         this.messageSource = messageSource;
     }
 
@@ -77,6 +81,8 @@ public class RevisionController {
 
         try {
             model.addAttribute("nota", revisionService.buscar(id));
+            // Historial de la nota (HU 20): Release ve los rechazos anteriores
+            model.addAttribute("historial", notaHistorialService.listarPorNota(id));
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", mensaje("revision.error.noEncontrada"));
             return "redirect:/revision/pendientes";

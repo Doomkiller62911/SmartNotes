@@ -15,6 +15,30 @@
                  align-items-center gap-3 mb-4">
 
                 <h1 class="fw-bold mb-0">Detalle de la nota</h1>
+                
+                <div th:if="${nota.estado.name() == 'RECHAZADA'}"
+                 class="alert alert-danger" role="alert">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div>
+                        <strong th:text="#{nota.rechazada.titulo}">Nota rechazada por Release</strong>
+                        <div style="white-space: pre-wrap; overflow-wrap: anywhere;">
+                            <span th:text="#{nota.rechazada.motivo}">Motivo</span>:
+                            <span th:text="${nota.motivoRechazo}"></span>
+                        </div>
+                        <div class="small" th:if="${nota.revisor != null}">
+                            <span th:text="#{nota.rechazada.revisor}">Revisada por</span>:
+                            <span th:text="${nota.revisor.nombre + ' ' + nota.revisor.apellidoPaterno}"></span>
+                            <span th:if="${nota.fechaRevision != null}"
+                                  th:text="'(' + ${#temporals.format(nota.fechaRevision, 'dd/MM/yyyy HH:mm')} + ')'"></span>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/Generador_Notas/notas/{id}/editar(id=${nota.idNota})}"
+                       class="btn btn-danger" th:text="#{nota.corregir}">
+                        Corregir y reenviar
+                    </a>
+                </div>
+            </div>
 
                 <a th:href="@{/Generador_Notas/notas}"
                    class="btn btn-outline-primary">
@@ -36,8 +60,8 @@
 
                     <div class="col-md-6">
                         <div class="text-secondary small">Estado</div>
-                        <span class="badge bg-primary"
-                              th:text="${nota.estado}">
+                        <span class="badge bg-primary" 
+                              th:text="#{'nota.estado.' + ${nota.estado.name()}}">
                         </span>
                     </div>
 
@@ -134,6 +158,8 @@
                 </div>
 
             </section>
+            
+            <div th:replace="~{general/historial :: linea(${historial})}"></div>
 
         </main>
 

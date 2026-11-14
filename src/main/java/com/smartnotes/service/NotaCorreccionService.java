@@ -124,6 +124,13 @@ public class NotaCorreccionService {
         }
 
         EstadoNota estadoAnterior = nota.getEstado();
+        boolean eraRechazada = estadoAnterior == EstadoNota.RECHAZADA;
+
+        // Una nota rechazada solo se corrige para reenviarla: nunca vuelve a borrador
+        if (eraRechazada) {
+            form.setGuardarComoBorrador(false);
+        }
+
         Plantilla plantilla = plantillaService.findById(form.getPlantillaId());
         TeamMember teamMember = teamMemberService.findById(form.getTeamMemberId());
 
@@ -134,10 +141,14 @@ public class NotaCorreccionService {
 
         NotaCorreccion guardada = notaCorreccionRepository.save(nota);
 
-        // Si cambio de estado (por ejemplo BORRADOR -> PENDIENTE_REVISION), se registra
+        // El rechazo anterior queda en nota_historial (y motivo_rechazo se conserva
+        // para que Release lo vea al revisar de nuevo)
         if (estadoAnterior != guardada.getEstado()) {
             notaHistorialService.registrar(guardada, estadoAnterior,
-                    guardada.getEstado(), usuario, "Nota enviada a revisión");
+                    guardada.getEstado(), usuario,
+                    eraRechazada
+                            ? "Nota corregida y reenviada a revisión"
+                            : "Nota enviada a revisión");
         }
         return guardada;
     }
