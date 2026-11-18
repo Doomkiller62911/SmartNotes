@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{general/fragmentos :: head}"></head>
+
+    <body>
+
+        <aside th:replace="~{general/fragmentos :: header}"></aside>
+
+        <main class="container-fluid p-4 p-lg-5">
+
+            <div th:replace="~{general/fragmentos :: usuarioActual}"></div>
+
+            <div class="mb-4">
+                <h1 class="h3 fw-bold mb-1"
+                    th:text="${usuario.idUsuario == null} ? #{usuario.form.nuevo} : #{usuario.form.editar}">
+                    Nuevo usuario
+                </h1>
+                <p class="text-secondary mb-0" th:text="#{usuario.form.ayuda}">
+                    Los campos con * son obligatorios.
+                </p>
+            </div>
+
+            <form class="sn-panel"
+                  th:object="${usuario}"
+                  th:action="@{/usuarios/guardar}"
+                  method="post">
+
+
+                <div class="alert alert-danger" role="alert"
+                     th:if="${error}" th:text="${error}"></div>
+
+                
+                <div class="alert alert-danger" role="alert"
+                     th:if="${#fields.hasAnyErrors()}">
+                    <p class="fw-bold mb-2" th:text="#{usuario.form.revisa}">
+                        Revisa los siguientes datos:
+                    </p>
+                    <ul class="mb-0">
+                        <li th:each="err : ${#fields.allErrors()}" th:text="${err}">
+                            Error de validación
+                        </li>
+                    </ul>
+                </div>
+
+                <input type="hidden" th:field="*{idUsuario}">
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+                        <label for="username" class="form-label"
+                               th:text="#{usuario.username}">Usuario *</label>
+                        <input type="text" class="form-control" id="username"
+                               th:field="*{username}" maxlength="30" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="correo" class="form-label"
+                               th:text="#{usuario.correo}">Correo *</label>
+                        <input type="email" class="form-control" id="correo"
+                               th:field="*{correo}" maxlength="100" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="nombre" class="form-label"
+                               th:text="#{usuario.nombre}">Nombre *</label>
+                        <input type="text" class="form-control" id="nombre"
+                               th:field="*{nombre}" maxlength="50" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="apellidoPaterno" class="form-label"
+                               th:text="#{usuario.apellidoPaterno}">Primer apellido *</label>
+                        <input type="text" class="form-control" id="apellidoPaterno"
+                               th:field="*{apellidoPaterno}" maxlength="50" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="apellidoMaterno" class="form-label"
+                               th:text="#{usuario.apellidoMaterno}">Segundo apellido</label>
+                        <input type="text" class="form-control" id="apellidoMaterno"
+                               th:field="*{apellidoMaterno}" maxlength="50">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="puesto" class="form-label"
+                               th:text="#{usuario.puesto}">Puesto</label>
+                        <input type="text" class="form-control" id="puesto"
+                               th:field="*{puesto}" maxlength="60">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="idRol" class="form-label"
+                               th:text="#{usuario.perfil}">Perfil *</label>
+                        <select class="form-select" id="idRol" th:field="*{idRol}" required>
+                            <option value="" th:text="#{usuario.perfil.seleccione}">
+                                Selecciona un perfil
+                            </option>
+                            <option th:each="rol : ${roles}"
+                                    th:value="${rol.idRol}"
+                                    th:text="${rol.nombre}">
+                                Perfil
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="password" class="form-label"
+                               th:text="#{usuario.password}">Contraseña</label>
+                        <input type="password" class="form-control" id="password"
+                               th:field="*{password}" maxlength="25">
+                        <div class="form-text" th:text="#{usuario.password.ayuda}">
+                            Obligatoria para usuarios nuevos.
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-center">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input" id="activo"
+                                   th:field="*{activo}">
+                            <label class="form-check-label" for="activo"
+                                   th:text="#{usuario.activoCheck}">Usuario activo</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12 d-flex flex-wrap justify-content-end gap-3">
+                        <a th:href="@{/usuarios/listado}" class="btn btn-outline-secondary"
+                           th:text="#{usuario.cancelar}">Cancelar</a>
+                        <button type="submit" class="btn btn-primary"
+                                th:text="#{usuario.guardar}">Guardar usuario</button>
+                    </div>
+
+                </div>
+            </form>
+
+        </main>
+
+    </body>
+</html>

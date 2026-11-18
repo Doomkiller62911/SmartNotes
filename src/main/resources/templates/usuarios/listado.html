@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{general/fragmentos :: head}"></head>
+
+    <body>
+
+        <aside th:replace="~{general/fragmentos :: header}"></aside>
+
+        <main class="container-fluid p-4 p-lg-5">
+
+            <div th:replace="~{general/fragmentos :: usuarioActual}"></div>
+
+            <div class="mb-4">
+                <h1 class="h3 fw-bold mb-1" th:text="#{usuario.titulo}">Usuarios</h1>
+                <p class="text-secondary mb-0" th:text="#{usuario.subtitulo}">
+                    Administración de usuarios y perfiles.
+                </p>
+            </div>
+
+            <!-- Mensajes (vienen del controlador con RedirectAttributes) -->
+            <div class="alert alert-success" role="alert"
+                 th:if="${todoOk}" th:text="${todoOk}"></div>
+            <div class="alert alert-danger" role="alert"
+                 th:if="${error}" th:text="${error}"></div>
+
+            <section class="sn-panel">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0" th:text="#{usuario.listado}">Listado de usuarios</h2>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-primary" th:text="${totalUsuarios}">0</span>
+                        <a th:href="@{/usuarios/nuevo}" class="btn btn-sm btn-primary"
+                           th:text="#{usuario.nuevo}">
+                            Nuevo usuario
+                        </a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col" th:text="#{usuario.col.username}">Usuario</th>
+                                <th scope="col" th:text="#{usuario.col.nombre}">Nombre</th>
+                                <th scope="col" th:text="#{usuario.col.correo}">Correo</th>
+                                <th scope="col" th:text="#{usuario.col.perfil}">Perfil</th>
+                                <th scope="col" th:text="#{usuario.col.estado}">Estado</th>
+                                <th scope="col" th:text="#{usuario.col.acciones}">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:if="${#lists.isEmpty(usuarios)}">
+                                <td colspan="7" class="text-center text-secondary py-4"
+                                    th:text="#{usuario.sinUsuarios}">
+                                    No hay usuarios registrados.
+                                </td>
+                            </tr>
+
+                            <tr th:each="u : ${usuarios}">
+                                <td th:text="${u.idUsuario}"></td>
+                                <td th:text="${u.username}"></td>
+                                <td th:text="${u.nombre + ' ' + u.apellidoPaterno}"></td>
+                                <td th:text="${u.correo}"></td>
+                                <td th:text="${u.rol.nombre}"></td>
+
+                                <td>
+                                    <span class="badge bg-success" th:if="${u.activo}"
+                                          th:text="#{usuario.activo}">Activo</span>
+                                    <span class="badge bg-secondary" th:unless="${u.activo}"
+                                          th:text="#{usuario.inactivo}">Inactivo</span>
+                                </td>
+
+                                <td>
+                                    <a th:href="@{/usuarios/{id}/editar(id=${u.idUsuario})}"
+                                       class="btn btn-sm btn-primary"
+                                       th:text="#{usuario.editar}">
+                                        Editar
+                                    </a>
+
+                                    <form th:action="@{/usuarios/{id}/estado(id=${u.idUsuario})}"
+                                          method="post" class="d-inline">
+                                        <input type="hidden" name="activa"
+                                               th:value="${!u.activo}">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                th:text="${u.activo ? #messages.msg('usuario.desactivar') : #messages.msg('usuario.activar')}">
+                                            Desactivar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </main>
+
+    </body>
+</html>
