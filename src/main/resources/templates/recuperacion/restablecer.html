@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"></head>
+    <body>
+        <div class="container d-flex justify-content-center align-items-center min-vh-100">
+            <div class="card login-card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="logo-smartnotes mb-2"><i class="fa-solid fa-lock"></i></div>
+                        <h4 class="fw-bold">[[#{recuperacion.nueva.titulo}]]</h4>
+                        <small class="text-muted">[[#{recuperacion.nueva.subtitulo}]]</small>
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger" role="alert">
+                        <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${error}"></span>
+                    </div>
+
+                    <form th:action="@{/restablecer}" method="post">
+                        <input type="hidden" name="token" th:value="${token}"/>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">[[#{recuperacion.password}]]</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" id="password" name="password"
+                                       class="form-control" maxlength="25" required autofocus/>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmacion" class="form-label">[[#{recuperacion.confirmacion}]]</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" id="confirmacion" name="confirmacion"
+                                       class="form-control" maxlength="25" required/>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">[[#{recuperacion.guardar}]]</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

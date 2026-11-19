@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"></head>
+    <body>
+        <div class="container d-flex justify-content-center align-items-center min-vh-100">
+            <div class="card login-card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="logo-smartnotes mb-2"><i class="fa-solid fa-key"></i></div>
+                        <h4 class="fw-bold">[[#{recuperacion.titulo}]]</h4>
+                        <small class="text-muted">[[#{recuperacion.subtitulo}]]</small>
+                    </div>
+
+                    <div th:if="${todoOk}" class="alert alert-success" role="alert">
+                        <i class="fa-solid fa-circle-check"></i> <span th:text="${todoOk}"></span>
+                    </div>
+                    <div th:if="${error}" class="alert alert-danger" role="alert">
+                        <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${error}"></span>
+                    </div>
+
+                    <form th:action="@{/recuperar}" method="post">
+                        <div class="mb-3">
+                            <label for="usuarioOCorreo" class="form-label">[[#{recuperacion.campo}]]</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" id="usuarioOCorreo" name="usuarioOCorreo"
+                                       class="form-control" maxlength="100" required autofocus/>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">[[#{recuperacion.enviar}]]</button>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <a th:href="@{/login}">[[#{recuperacion.volver}]]</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
