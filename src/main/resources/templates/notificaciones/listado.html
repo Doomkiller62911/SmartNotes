@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{general/fragmentos :: head}"></head>
+
+    <body>
+
+        <aside th:replace="~{general/fragmentos :: header}"></aside>
+
+        <main class="container-fluid p-4 p-lg-5">
+
+            <div th:replace="~{general/fragmentos :: usuarioActual}"></div>
+
+            <div class="mb-4">
+                <h1 class="h3 fw-bold mb-1" th:text="#{notificacion.titulo}">Notificaciones</h1>
+                <p class="text-secondary mb-0" th:text="#{notificacion.subtitulo}">
+                    Avisos sobre la revisión de tus notas.
+                </p>
+            </div>
+
+            <div class="alert alert-danger" role="alert"
+                 th:if="${error}" th:text="${error}"></div>
+
+            <section class="sn-panel">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0" th:text="#{notificacion.titulo}">Notificaciones</h2>
+                    <span class="badge bg-primary" th:text="${noLeidas}">0</span>
+                </div>
+
+                <p class="text-center text-secondary py-4 mb-0"
+                   th:if="${#lists.isEmpty(notificaciones)}"
+                   th:text="#{notificacion.sinNotificaciones}">
+                    No tienes notificaciones.
+                </p>
+
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item px-0" th:each="n : ${notificaciones}">
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+
+                            <div>
+                                <div class="fw-semibold">
+                                    <span class="text-success" th:if="${n.tipo == 'APROBADA'}"
+                                          th:text="#{notificacion.aprobada}">Tu nota fue aprobada</span>
+                                    <span class="text-danger" th:if="${n.tipo == 'RECHAZADA'}"
+                                          th:text="#{notificacion.rechazada}">Tu nota fue rechazada</span>
+                                    <span class="badge bg-primary ms-2" th:unless="${n.leida}"
+                                          th:text="#{notificacion.nueva}">Nueva</span>
+                                </div>
+
+                                <div class="small text-secondary">
+                                    [[#{notificacion.nota}]] #[[${n.nota.idNota}]]
+                                    ·
+                                    [[${#temporals.format(n.fechaCreacion, 'dd/MM/yyyy HH:mm')}]]
+                                </div>
+
+                                <div class="mt-2" th:if="${n.tipo == 'RECHAZADA' and n.motivo != null}">
+                                    <strong>[[#{notificacion.motivo}]]:</strong>
+                                    <span th:text="${n.motivo}"></span>
+                                </div>
+                            </div>
+
+                            <form th:unless="${n.leida}"
+                                  th:action="@{/notificaciones/{id}/leida(id=${n.idNotificacion})}"
+                                  method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                        th:text="#{notificacion.marcarLeida}">
+                                    Marcar como leída
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+
+    </body>
+</html>

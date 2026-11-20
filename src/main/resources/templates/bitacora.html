@@ -79,36 +79,7 @@
     <body>
         <div class="d-flex">
 
-            <aside class="menu-lateral d-flex flex-column justify-content-between d-print-none">
-                <div>
-                    <div class="d-flex align-items-center gap-2 p-3 border-bottom">
-                        <span class="logo"><i class="fa-solid fa-pen-to-square"></i></span>
-                        <div>
-                            <div class="fw-bold lh-1">SmartNotes</div>
-                            <small class="text-secondary" th:text="#{plantilla.notasPlanta}">Notas de Planta</small>
-                        </div>
-                    </div>
-
-                    <p class="etiqueta px-3 pt-3 mb-2" th:text="#{bitacora.operacion}">Operación</p>
-                    <nav class="px-2 d-flex flex-column gap-1">
-                        <a class="opcion" th:href="@{/Generador_Notas/generador}">
-                            <i class="fa-solid fa-file-pen me-2"></i><span th:text="#{bitacora.generador}">Generador de Notas</span>
-                        </a>
-                        <a class="opcion" th:href="@{/plantillas}">
-                            <i class="fa-solid fa-table-cells-large me-2"></i><span th:text="#{bitacora.catalogo}">Catálogo de Plantillas</span>
-                        </a>
-                        <a class="opcion opcion-activa" th:href="@{/bitacora}">
-                            <i class="fa-solid fa-clock-rotate-left me-2"></i><span th:text="#{bitacora.titulo}">Bitácora de Notas</span>
-                        </a>
-                    </nav>
-                </div>
-
-                <form th:action="@{/logout}" method="post" class="p-2 border-top">
-                    <button type="submit" class="opcion text-danger border-0 bg-transparent w-100 text-start">
-                        <i class="fa-solid fa-right-from-bracket me-2"></i><span th:text="#{accion.cerrar_sesion}">Cerrar Sesión</span>
-                    </button>
-                </form>
-            </aside>
+            <aside th:replace="~{general/fragmentos :: header}"></aside>
 
             <div class="flex-grow-1">
 
