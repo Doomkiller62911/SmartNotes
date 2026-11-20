@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{general/fragmentos :: head}"></head>
+
+    <body>
+
+        <aside th:replace="~{general/fragmentos :: header}"></aside>
+
+        <main class="container-fluid p-4 p-lg-5">
+
+            <div th:replace="~{general/fragmentos :: usuarioActual}"></div>
+
+            <div class="mb-4">
+                <h1 class="h3 fw-bold mb-1" th:text="#{actividad.titulo}">Bitácora de actividades</h1>
+                <p class="text-secondary mb-0" th:text="#{actividad.subtitulo}">
+                    Registro de las acciones realizadas por los usuarios.
+                </p>
+            </div>
+
+            <section class="sn-panel">
+
+                <form th:action="@{/actividad}" method="get" class="row g-3 mb-4">
+
+                    <div class="col-md-4">
+                        <label for="idUsuario" class="form-label" th:text="#{actividad.filtro.usuario}">Usuario</label>
+                        <select id="idUsuario" name="idUsuario" class="form-select">
+                            <option value="" th:text="#{actividad.filtro.todos}">Todos los usuarios</option>
+                            <option th:each="u : ${usuarios}"
+                                    th:value="${u.idUsuario}"
+                                    th:text="${u.username}"
+                                    th:selected="${idUsuario != null and idUsuario == u.idUsuario}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="desde" class="form-label" th:text="#{actividad.filtro.desde}">Desde</label>
+                        <input type="date" id="desde" name="desde" class="form-control"
+                               th:value="${desde}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="hasta" class="form-label" th:text="#{actividad.filtro.hasta}">Hasta</label>
+                        <input type="date" id="hasta" name="hasta" class="form-control"
+                               th:value="${hasta}">
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary"
+                                th:text="#{actividad.filtrar}">Filtrar</button>
+                        <a th:href="@{/actividad}" class="btn btn-outline-secondary"
+                           th:text="#{actividad.limpiar}">Limpiar</a>
+                    </div>
+
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" th:text="#{actividad.col.fecha}">Fecha y hora</th>
+                                <th scope="col" th:text="#{actividad.col.usuario}">Usuario</th>
+                                <th scope="col" th:text="#{actividad.col.accion}">Acción</th>
+                                <th scope="col" th:text="#{actividad.col.entidad}">Afectado</th>
+                                <th scope="col" th:text="#{actividad.col.detalle}">Detalle</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:if="${#lists.isEmpty(actividades)}">
+                                <td colspan="5" class="text-center text-secondary py-4"
+                                    th:text="#{actividad.sinRegistros}">
+                                    No hay actividades registradas con esos filtros.
+                                </td>
+                            </tr>
+
+                            <tr th:each="a : ${actividades}">
+                                <td th:text="${#temporals.format(a.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td th:text="${a.usuario.username}"></td>
+                                <td th:text="${a.accion}"></td>
+                                <td th:text="${a.entidadAfectada}"></td>
+                                <td th:text="${a.detalle}"></td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </main>
+
+    </body>
+</html>

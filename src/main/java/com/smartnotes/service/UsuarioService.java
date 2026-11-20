@@ -20,6 +20,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ActividadService actividadService;
 
     @Transactional(readOnly = true)
     public Optional<Usuario> getUsuarioPorUsername(String username) {
@@ -105,10 +106,18 @@ public class UsuarioService {
         usuario.setCorreo(formulario.getCorreo());
         usuario.setRol(rol);
         usuario.setActivo(formulario.isActivo());
-        usuarioRepository.save(usuario);
-    }
         
-    @Transactional
+                String accion = "EDITAR";
+        if (usuario.getIdUsuario() == null) {
+            accion = "CREAR";
+        }
+
+        usuarioRepository.save(usuario);
+        actividadService.registrarActividad(accion, "Usuario",
+                "Usuario: " + usuario.getUsername());
+}
+        
+        @Transactional
     public void cambiarEstado(Integer idUsuario, boolean activo) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(idUsuario);
         if (usuarioOpt.isEmpty()) {
@@ -117,5 +126,13 @@ public class UsuarioService {
         Usuario usuario = usuarioOpt.get();
         usuario.setActivo(activo);
         usuarioRepository.save(usuario);
+
+        String accion = "DESACTIVAR";
+        if (activo) {
+            accion = "ACTIVAR";
+        }
+        actividadService.registrarActividad(accion, "Usuario",
+                "Usuario: " + usuario.getUsername());
     }
-}
+}  
+
